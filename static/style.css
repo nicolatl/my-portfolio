@@ -76,6 +76,7 @@ img {
   gap: 1em;
 }
 
+/* 
 .projects article {
   display: grid;
   grid-template-rows: subgrid;
@@ -84,7 +85,7 @@ img {
 
 .projects h2 {
   margin: 0;
-}
+} */
 
 h1 {
   font-size: 400%;
