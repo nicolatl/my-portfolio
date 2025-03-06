@@ -1,2 +1,3 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<h1>Nicola</h1>
+    <p>I am a masters student from Hamilton, Canada currently living in Cambridge, USA. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, dolore repudiandae nobis minus iusto ut necessitatibus similique autem modi culpa! Ut voluptatem ea fugit earum consequatur temporibus in quaerat? Fugit?</p>
+    <img src="images/nicola.jpeg" width=400 alt="Black-and-white photo of Nicola smiling and holding an umbrella in front of a cat">
