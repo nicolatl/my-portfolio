@@ -1,8 +1,8 @@
 console.log("IT’S ALIVE!");
 
-function $$ (selector, context = document) {
-	return Array.from(context.querySelectorAll(selector));
-}
+// function $$ (selector, context = document) {
+// 	return Array.from(context.querySelectorAll(selector));
+// }
 
 // // 2.1
 // let navLinks = $$("nav a");
@@ -16,16 +16,16 @@ function $$ (selector, context = document) {
 // }
 
 // step 3.1
-let pages = [
-	{url: ".", title: "Home"},
-	{url: "projects", title: "Projects"},
-	{url: "contact", title: "Contact"},
-	{url: "resume", title: "Resume"},
-	{url: "https://github.com/nicolatl", title: "Github"}
-];
+// let pages = [
+// 	{url: ".", title: "Home"},
+// 	{url: "projects", title: "Projects"},
+// 	{url: "contact", title: "Contact"},
+// 	{url: "resume", title: "Resume"},
+// 	{url: "https://github.com/nicolatl", title: "Github"}
+// ];
 
-let nav = document.createElement("nav");
-document.body.prepend(nav);
+// let nav = document.createElement("nav");
+// document.body.prepend(nav);
 
 // const ARE_WE_HOME = document.documentElement.classList.contains("home");
 
@@ -68,29 +68,29 @@ for (let p of pages) {
     nav.append(a);
 }
 
-document.body.insertAdjacentHTML("afterbegin", `
-	<label class="color-scheme">
-		Theme:
-		<select>
-			<option value="light dark">Automatic</option>
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-		</select>
-	</label>`
-);
+// document.body.insertAdjacentHTML("afterbegin", `
+// 	<label class="color-scheme">
+// 		Theme:
+// 		<select>
+// 			<option value="light dark">Automatic</option>
+//             <option value="dark">Dark</option>
+//             <option value="light">Light</option>
+// 		</select>
+// 	</label>`
+// );
 
-let select = document.querySelector("select");
+// let select = document.querySelector("select");
 
-select.addEventListener("input", function (event) {
-	console.log("color scheme changed to", event.target.value);
+// select.addEventListener("input", function (event) {
+// 	console.log("color scheme changed to", event.target.value);
 
-    document.documentElement.style.setProperty("color-scheme", event.target.value);
+//     document.documentElement.style.setProperty("color-scheme", event.target.value);
 
-    localStorage.colorScheme = event.target.value;
-});
+//     localStorage.colorScheme = event.target.value;
+// });
 
-if (localStorage.colorScheme) {
-	document.documentElement.style.setProperty("color-scheme", localStorage.colorScheme);
-	select.value = localStorage.colorScheme;
-}
+// if (localStorage.colorScheme) {
+// 	document.documentElement.style.setProperty("color-scheme", localStorage.colorScheme);
+// 	select.value = localStorage.colorScheme;
+// }
 

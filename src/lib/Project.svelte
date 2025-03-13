@@ -8,12 +8,6 @@
     <p>{data.description}</p>
 </article>
 <style>
-body {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15em, 1fr));
-  gap: 1em;
-}
-
 article {
   display: grid;
   grid-template-rows: subgrid;
