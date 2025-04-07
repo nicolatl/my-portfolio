@@ -1,4 +1,5 @@
 <script>
+    import {base} from '$app/paths';
     import * as d3 from "d3";
     import { onMount } from "svelte";
     import {
@@ -31,7 +32,7 @@
 
 
     onMount(async () => {
-        data = await d3.csv("/loc.csv", row => ({
+        data = await d3.csv(`${base}/loc.csv`, row => ({
             ...row,
             line: Number(row.line), // or just +row.line
             depth: Number(row.depth),
