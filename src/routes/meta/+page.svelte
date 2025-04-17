@@ -7,9 +7,12 @@
         autoPlacement,
         offset,
     } from '@floating-ui/dom';
-    import Bar from '$lib/Bar.svelte';
+    import Bar from '$lib/StackedBar.svelte';
+    import FileLines from '$lib/FileLines.svelte';
 
     let commitTooltip;
+
+    let colorScale = d3.scaleOrdinal(d3.schemeTableau10);
 
 
 
@@ -27,6 +30,12 @@
     };
     usableArea.width = usableArea.right - usableArea.left;
     usableArea.height = usableArea.bottom - usableArea.top;
+    let commitProgress = 100;
+    const timeScale = d3.scaleTime([new Date(2025, 2, 1), new Date(2025, 3, 17)], [0, 100]);
+    $: commitMaxTime = timeScale.invert(commitProgress);
+    $: dateFilterLabel = new Date(commitMaxTime)
+                     .toLocaleString("en", {dateStyle: "full", timeStyle: "short"});
+
 
 
 
@@ -70,8 +79,12 @@
 
     $: minDate = d3.min(commits.map(d => d.date));
     $: maxDate = d3.max(commits.map(d => d.date));
-    $: maxDatePlusOne = new Date(maxDate);
+    $: maxDatePlusOne = new Date(commitMaxTime);
     $: maxDatePlusOne.setDate(maxDatePlusOne.getDate() + 1);
+
+    $: filteredCommits = commits.filter(commit => commit.datetime <= commitMaxTime);
+    $: filteredLines = data.filter(datum => datum.datetime <= commitMaxTime);
+
 
     $: xScale = d3.scaleTime()
                 .domain([minDate, maxDatePlusOne])
@@ -94,7 +107,7 @@
         );
     }
     let hoveredIndex = -1;
-    $: hoveredCommit = commits[hoveredIndex] ?? hoveredCommit ?? {};
+    $: hoveredCommit = filteredCommits[hoveredIndex] ?? hoveredCommit ?? {};
     let cursor = {x: 0, y: 0};
     let tooltipPosition = {x: 0, y: 0};
     async function dotInteraction (index, evt) {
@@ -146,22 +159,32 @@
 </script>
 <h1>Meta</h1>
 This page includes stats about the code of this website.
-<dl class="stats">
-	<dt>Total <abbr title="Lines of code">LOC</abbr></dt>
-	<dd>{data.length}</dd>
-	<dt>Total Commits</dt>
-	<dd>{commits.length}</dd>
-	<dt>Longest Line</dt>
-	<dd>{d3.max(data,(d) => d.length)}</dd>
-</dl>
 
 <h3>Commits by time of day</h3>
+<div class="slider-container">
+    <label>
+        Show commits before
+        <input id="maxTimeSlider" type="range" min="0" max="100" bind:value={commitProgress} />
+        <time style="display: block">
+            {dateFilterLabel}
+        </time>
+    </label>
+</div>
+<FileLines lines={filteredLines} width={width} colorScale={colorScale}/>
+<dl class="stats">
+	<dt>Total <abbr title="Lines of code">LOC</abbr></dt>
+	<dd>{filteredLines.length}</dd>
+	<dt>Total Commits</dt>
+	<dd>{filteredCommits.length}</dd>
+	<dt>Longest Line</dt>
+	<dd>{d3.max(filteredLines,(d) => d.length)}</dd>
+</dl>
 <svg viewBox="0 0 {width} {height}">
     <g transform="translate(0, {usableArea.bottom})" bind:this={xAxis} />
     <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
     <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
     <g class="dots">
-        {#each commits as commit, index }
+        {#each filteredCommits as commit, index (commit.id)  }
             <circle 
                 class:selected={ clickedCommits.includes(commit) }
                 on:click={ evt => dotInteraction(index, evt) }
@@ -187,7 +210,7 @@ This page includes stats about the code of this website.
     <!-- TODO Add: Time, author, lines edited -->
 </dl>
 
-<Bar data={languageBreakdown} width={width} />
+<Bar data={languageBreakdown} width={width} colorScale={colorScale} />
 
 
 
@@ -228,6 +251,9 @@ This page includes stats about the code of this website.
     }
     circle {
         transition: 200ms;
+        @starting-style {
+            r: 0;
+        }
 
 
         &:hover {
