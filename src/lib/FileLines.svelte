@@ -1,12 +1,14 @@
 <script>
 	import * as d3 from 'd3';
     export let lines = [];
-    export let width = 400;
+    export let width;
+    export let svgWidth;
     export let colorScale = d3.scaleOrdinal(d3.schemeTableau10);
 
     let files = [];
     $: files = d3.groups(lines, d => d.file)
-                .map(([name, lines]) => ({ name, lines }));
+                .map(([name, lines]) => ({ name, lines }))
+                .sort((a, b) => b.lines.length - a.lines.length);;
 
     let svg;
 
@@ -49,7 +51,7 @@
         const maxDotsPerRow = Math.floor(availableWidth / approxDotWidth) || totalDots;
         const dotRows = Math.ceil(totalDots / maxDotsPerRow);
         return { ...file, groupHeight: fileInfoHeight + dotRows * dotRowHeight };
-    }).sort((a, b) => b.lines.length - a.lines.length);
+    })
 
     $: positions = (() => {
         let pos = [], y = 0;
@@ -62,9 +64,8 @@
 
     $: if (svg) {
         const rowHeight = 30;
-        const width = 400;
-        const height = files.length * rowHeight;
-        const svgWidth = 1200;
+        // const width = 400;
+        // const svgWidth = 1200;
         const totalHeight = positions.length
             ? positions[positions.length - 1] + filesWithHeights[filesWithHeights.length - 1].groupHeight
             : 0;
@@ -75,35 +76,36 @@
 
         d3.select(svg)
             .attr('width', width)
-            .attr('height', height);
+            .attr('height', totalHeight);
         const groups = d3.select(svg)
             .selectAll('g.file')
             .data(files, d => d.name);
-            groups.exit().remove();
+        groups.exit().remove();
 
         const enterGroups = groups.enter()
             .append('g')
             .attr('class', 'file')
-            .attr('transform', (d, i) => `translate(0, ${i * rowHeight})`);
+            .attr('transform', (d, i) => `translate(0, ${positions[i]})`);
         
         enterGroups.append('text')
             .attr('class', 'filename')
             .attr('x', 10)
-            .attr('y', rowHeight / 2)
+            .attr('baseY', rowHeight / 2)
+            // .attr('y', baseY + totalLinesOffset)
             .attr('dominant-baseline', 'hanging')
             .text(d => d.name);
 
         enterGroups.append('text')
             .attr('class', 'linecount')
-            .attr('y', baseY + totalLinesOffset)
+            .attr('y', rowHeight / 2)
             .attr('x', 10)
             .attr('dominant-baseline', 'hanging')
             .attr('font-size','0.7rem')
             .text(d => `${d.lines.length} lines`);
 
-        groups.attr('transform', (d, i) => `translate(0, ${i * rowHeight})`)
-            .select('text.filename')
-            .text(d => d.name);
+        // groups.attr('transform', (d, i) => `translate(0, ${positions[i]})`)
+        //     .select('text.filename')
+        //     .text(d => d.name);
 
         groups.select('text.linecount')
             .attr('font-size','0.7rem')
@@ -114,6 +116,7 @@
             .attr('class', 'unit-dots')
             .attr('x', dotsColumnX)
             .attr('y', baseY - 2)
+            .attr('font-size', '2.2rem')
             .attr('dominant-baseline', 'mathematical')
             .attr('fill', "#1f77b4")
             .html(d => generateDots(d, svgWidth));
@@ -136,18 +139,20 @@
                     .filter(function() {
                     return +this.getAttribute('data-index') >= oldCount;
                     })
-                    // somehow initializing opacity to 1 breaks it...
+                    .style('opacity',0)
+                    .transition()
+                    .duration(1000)
+                    .ease(d3.easeCubicOut)
+                    .style('opacity', 1);
+
             }
             
             previousDotCounts.set(d.name, newCount);
         });
 
+        
         groups.transition()
-                    .duration(1000)
-                    .ease(d3.easeCubicOut)
-                    .style('opacity', 1);
-
-        groups.transition().duration(function(d, i) {
+        .duration(function(d, i) {
             const currentTransform = this.getAttribute("transform") || "translate(0,0)";
             const match = currentTransform.match(/translate\(\s*0\s*,\s*([0-9.]+)\s*\)/);
             const oldY = match ? +match[1] : 0;
@@ -155,13 +160,13 @@
             const distance = Math.abs(newY - oldY);
             return distance * 2;
         })
+        .attr('transform', (d, i) => `translate(0, ${positions[i]})`)
 
 
     }
 
 
 </script>
-<html>
-    
-    <svg bind:this={svg}/>
-</html>
+
+<svg bind:this={svg}/>
+
